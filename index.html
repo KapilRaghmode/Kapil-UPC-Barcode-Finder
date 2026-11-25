@@ -3,441 +3,1471 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Smart Barcode Finder</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --primary: #4f46e5;
-      --primary-hover: #4338ca;
-      --secondary: #10b981;
-      --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-      --card-bg: rgba(255, 255, 255, 0.06);
-      --card-border: rgba(255, 255, 255, 0.12);
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Poppins', sans-serif;
-    }
-
-    html {
-      scroll-behavior: smooth;
-    }
-
-    body {
-      background: var(--bg-gradient);
-      color: var(--text-main);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    /* Navigation Bar */
-    nav {
-      background: rgba(15, 23, 42, 0.85);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--card-border);
-      padding: 1rem 2rem;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .logo {
-      font-size: 1.4rem;
-      font-weight: 700;
-      background: linear-gradient(to right, #818cf8, #34d399);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      letter-spacing: 0.5px;
-    }
-
-    .nav-links {
-      list-style: none;
-      display: flex;
-      gap: 1.8rem;
-    }
-
-    .nav-links a {
-      color: var(--text-main);
-      text-decoration: none;
-      font-size: 0.95rem;
-      font-weight: 500;
-      transition: color 0.3s ease;
-    }
-
-    .nav-links a:hover {
-      color: #818cf8;
-    }
-
-    /* Main Container */
-    main {
-      flex: 1;
-      max-width: 900px;
-      width: 100%;
-      margin: 2.5rem auto;
-      padding: 0 1.5rem;
-    }
-
-    /* Sections & Glassmorphism Cards */
-    .card {
-      background: var(--card-bg);
-      backdrop-filter: blur(16px);
-      border: 1px solid var(--card-border);
-      border-radius: 16px;
-      padding: 2rem;
-      margin-bottom: 2rem;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-      animation: fadeUp 0.6s ease-out forwards;
-    }
-
-    h1, h2 {
-      margin-bottom: 0.75rem;
-      font-weight: 600;
-    }
-
-    p.subtitle {
-      color: var(--text-muted);
-      font-size: 0.95rem;
-      margin-bottom: 1.5rem;
-    }
-
-    /* Search & Inputs */
-    .search-box {
-      display: flex;
-      gap: 0.75rem;
-      flex-wrap: wrap;
-    }
-
-    input {
-      flex: 1;
-      min-width: 220px;
-      padding: 0.85rem 1.2rem;
-      border-radius: 10px;
-      border: 1px solid var(--card-border);
-      background: rgba(15, 23, 42, 0.6);
-      color: #fff;
-      font-size: 1rem;
-      outline: none;
-      transition: border-color 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    input:focus {
-      border-color: #818cf8;
-      box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.25);
-    }
-
-    button {
-      padding: 0.85rem 1.6rem;
-      border-radius: 10px;
-      border: none;
-      background: var(--primary);
-      color: white;
-      font-size: 1rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: transform 0.2s ease, background 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    button:hover {
-      background: var(--primary-hover);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4);
-    }
-
-    button:active {
-      transform: translateY(0);
-    }
-
-    .btn-secondary {
-      background: var(--secondary);
-    }
-
-    .btn-secondary:hover {
-      background: #059669;
-      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
-    }
-
-    /* Sample Chips */
-    .samples {
-      margin-top: 1.2rem;
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      flex-wrap: wrap;
-    }
-
-    .samples span {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-    }
-
-    .chip {
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid var(--card-border);
-      padding: 0.35rem 0.8rem;
-      border-radius: 20px;
-      font-size: 0.8rem;
-      color: #cbd5e1;
-      cursor: pointer;
-      transition: all 0.25s ease;
-    }
-
-    .chip:hover {
-      background: rgba(129, 140, 248, 0.25);
-      border-color: #818cf8;
-      color: #fff;
-    }
-
-    /* Result Box */
-    #result {
-      margin-top: 1.5rem;
-      padding: 1.5rem;
-      border-radius: 12px;
-      background: rgba(15, 23, 42, 0.7);
-      border: 1px solid var(--card-border);
-      display: none;
-      animation: fadeIn 0.4s ease forwards;
-    }
-
-    .badge {
-      display: inline-block;
-      padding: 0.25rem 0.7rem;
-      border-radius: 6px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      margin-bottom: 0.6rem;
-    }
-
-    .badge-custom {
-      background: rgba(16, 185, 129, 0.2);
-      color: #34d399;
-      border: 1px solid rgba(16, 185, 129, 0.4);
-    }
-
-    .badge-global {
-      background: rgba(99, 102, 241, 0.2);
-      color: #818cf8;
-      border: 1px solid rgba(99, 102, 241, 0.4);
-    }
-
-    .result-grid {
-      display: flex;
-      gap: 1.5rem;
-      align-items: center;
-      flex-wrap: wrap;
-      margin-top: 0.5rem;
-    }
-
-    .result-grid img {
-      width: 110px;
-      height: 110px;
-      object-fit: contain;
-      background: #fff;
-      border-radius: 10px;
-      padding: 0.5rem;
-    }
-
-    /* Custom Product List Table */
-    .db-list {
-      margin-top: 1.5rem;
-      display: grid;
-      gap: 0.75rem;
-    }
-
-    .db-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0.9rem 1.2rem;
-      background: rgba(15, 23, 42, 0.5);
-      border: 1px solid var(--card-border);
-      border-radius: 10px;
-      transition: transform 0.2s ease, border-color 0.2s ease;
-    }
-
-    .db-item:hover {
-      transform: translateX(4px);
-      border-color: #818cf8;
-    }
-
-    .db-item-info strong {
-      display: block;
-      font-size: 0.95rem;
-    }
-
-    .db-item-info small {
-      color: var(--text-muted);
-      font-size: 0.8rem;
-    }
-
-    /* Footer */
-    footer {
-      background: rgba(15, 23, 42, 0.9);
-      border-top: 1px solid var(--card-border);
-      padding: 2rem 1.5rem;
-      text-align: center;
-      color: var(--text-muted);
-      font-size: 0.9rem;
-    }
-
-    .footer-links {
-      display: flex;
-      justify-content: center;
-      gap: 1.5rem;
-      margin-bottom: 0.8rem;
-    }
-
-    .footer-links a {
-      color: #cbd5e1;
-      text-decoration: none;
-      transition: color 0.3s ease;
-    }
-
-    .footer-links a:hover {
-      color: #34d399;
-    }
-
-    /* Animations */
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: scale(0.98); }
-      to { opacity: 1; transform: scale(1); }
-    }
-
-    @media (max-width: 600px) {
-      nav { flex-direction: column; gap: 0.8rem; }
-      .nav-links { gap: 1rem; font-size: 0.85rem; }
-    }
-  </style>
+  <title>Barcode & UPC Product Finder Pro</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- JsBarcode CDN for real scannable barcode rendering -->
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              900: '#312e81',
+            }
+          }
+        }
+      }
+    };
+  </script>
 </head>
-<body>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
 
-  <!-- Navigation Bar -->
-  <nav>
-    <div class="logo">BarcodeFinder Pro</div>
-    <ul class="nav-links">
-      <li><a href="#scanner">Search</a></li>
-      <li><a href="#custom-db">Custom Database</a></li>
-      <li><a href="#about">About</a></li>
-    </ul>
-  </nav>
+  <!-- Top Navigation Header -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between py-3 sm:h-16 gap-3">
+        <!-- Logo & Title -->
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-md shadow-indigo-200 shrink-0">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 7V5a2 2 0 012-2h2m10 0h2a2 2 0 012 2v2m0 10v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2M7 8v8m4-8v8m4-8v8m3-8v8" />
+            </svg>
+          </div>
+          <div>
+            <h1 class="text-lg sm:text-xl font-bold text-slate-900 tracking-tight leading-tight">Barcode & UPC Finder</h1>
+            <p class="text-xs text-slate-500">Instant Product Lookup, Generator & Inventory Database</p>
+          </div>
+        </div>
 
-  <!-- Main Content -->
-  <main>
-    <!-- Barcode Lookup Section -->
-    <section id="scanner" class="card">
-      <h1>Product Barcode Lookup</h1>
-      <p class="subtitle">Enter any barcode below. Searches your private custom database first, then checks the global product directory.</p>
+        <!-- Navigation Tabs -->
+        <nav class="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl overflow-x-auto" aria-label="Tabs">
+          <button type="button" id="tab-btn-search" onclick="switchTab('search')" class="tab-btn px-3.5 py-2 rounded-lg text-sm font-semibold bg-white text-indigo-600 shadow-sm transition whitespace-nowrap">
+            Search & Lookup
+          </button>
+          <button type="button" id="tab-btn-database" onclick="switchTab('database')" class="tab-btn px-3.5 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 transition whitespace-nowrap flex items-center gap-1.5">
+            <span>Product Database</span>
+            <span id="db-count-badge" class="px-2 py-0.5 text-xs rounded-full bg-indigo-100 text-indigo-700 font-bold">0</span>
+          </button>
+          <button type="button" id="tab-btn-history" onclick="switchTab('history')" class="tab-btn px-3.5 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 transition whitespace-nowrap flex items-center gap-1.5">
+            <span>History</span>
+            <span id="history-count-badge" class="px-2 py-0.5 text-xs rounded-full bg-slate-200 text-slate-700 font-bold">0</span>
+          </button>
+          <button type="button" id="tab-btn-importexport" onclick="switchTab('importexport')" class="tab-btn px-3.5 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 transition whitespace-nowrap">
+            Import / Export
+          </button>
+        </nav>
+      </div>
+    </div>
+  </header>
 
-      <div class="search-box">
-        <input type="text" id="barcodeInput" placeholder="Enter barcode (e.g., 1001 or 8901058851229)" />
-        <button onclick="searchBarcode()">Search Product</button>
+  <!-- Toast Notification Banner (Replaces alert()) -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none max-w-sm w-full px-4 sm:px-0"></div>
+
+  <!-- Main Content Container -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+
+    <!-- ==================== TAB 1: SEARCH & LOOKUP ==================== -->
+    <section id="view-search" class="space-y-6">
+      <!-- Hero Search Card -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-8">
+        <div class="max-w-3xl mx-auto text-center mb-6">
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 mb-3">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            Local Catalog + Live Open Food Facts API
+          </span>
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Find Any Product Barcode or UPC Instantly</h2>
+          <p class="text-sm sm:text-base text-slate-500 mt-1.5">Search by product name (e.g., <em>Maggi Double Masala</em>) or enter an EAN-13 / UPC number to generate a scannable barcode.</p>
+        </div>
+
+        <!-- Search Form -->
+        <form id="search-form" onsubmit="event.preventDefault(); searchBarcode();" class="max-w-3xl mx-auto">
+          <div class="flex flex-col sm:flex-row gap-3">
+            <div class="relative flex-1">
+              <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 103.5 10.5a7.5 7.5 0 0013.15 6.15z" />
+                </svg>
+              </div>
+              <input
+                type="text"
+                id="search-input"
+                placeholder="Type product name (e.g. Maggi, Amul Butter) or barcode (8901058851298)..."
+                class="w-full pl-11 pr-10 py-3.5 rounded-xl border border-slate-300 bg-slate-50 focus:bg-white text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm sm:text-base transition"
+                autocomplete="off"
+              />
+              <button type="button" id="clear-search-btn" onclick="clearSearchInput()" title="Clear input" class="hidden absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <button
+              type="button"
+              id="search-btn"
+              onclick="searchBarcode()"
+              class="px-6 py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-semibold text-sm sm:text-base shadow-sm shadow-indigo-200 transition flex items-center justify-center gap-2 shrink-0 cursor-pointer"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 103.5 10.5a7.5 7.5 0 0013.15 6.15z" />
+              </svg>
+              <span>Search Product</span>
+            </button>
+          </div>
+
+          <!-- Search Mode Toggle & Quick Chips -->
+          <div class="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-2">
+            <div class="flex flex-wrap items-center gap-1.5">
+              <span class="text-xs font-semibold text-slate-500 mr-1">Quick Try:</span>
+              <button type="button" onclick="quickSearch('Maggi Double Masala')" class="px-2.5 py-1 rounded-lg text-xs font-medium bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100 transition">Maggi Double Masala</button>
+              <button type="button" onclick="quickSearch('Amul Butter')" class="px-2.5 py-1 rounded-lg text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100 transition">Amul Butter</button>
+              <button type="button" onclick="quickSearch('8901058851298')" class="px-2.5 py-1 rounded-lg text-xs font-mono font-medium bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 transition">8901058851298</button>
+              <button type="button" onclick="quickSearch('Parle-G')" class="px-2.5 py-1 rounded-lg text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition">Parle-G</button>
+              <button type="button" onclick="quickSearch('Tata Salt')" class="px-2.5 py-1 rounded-lg text-xs font-medium bg-sky-50 text-sky-700 border border-sky-200 hover:bg-sky-100 transition">Tata Salt</button>
+            </div>
+
+            <label class="inline-flex items-center gap-2 text-xs font-medium text-slate-600 cursor-pointer select-none">
+              <input type="checkbox" id="live-api-toggle" checked class="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 border-slate-300" />
+              <span>Include Live Global API Fallback</span>
+            </label>
+          </div>
+        </form>
       </div>
 
-      <!-- Quick Test Examples -->
-      <div class="samples">
-        <span>Try examples:</span>
-        <div class="chip" onclick="quickSearch('1001')">1001 (Custom Item)</div>
-        <div class="chip" onclick="quickSearch('1002')">1002 (Fresh Cabbage)</div>
-        <div class="chip" onclick="quickSearch('8901058851229')">8901058851229 (Maggi)</div>
-        <div class="chip" onclick="quickSearch('5449000000996')">5449000000996 (Coca-Cola)</div>
+      <!-- Loading Indicator -->
+      <div id="search-loading" class="hidden bg-white rounded-2xl border border-slate-200 p-8 text-center">
+        <div class="inline-block w-8 h-8 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-3"></div>
+        <p class="text-sm font-semibold text-slate-700">Searching local database & global product catalog...</p>
       </div>
 
-      <!-- Search Result Display -->
-      <div id="result"></div>
-    </section>
+      <!-- Main Search Workspace: Results Grid + Active Barcode Inspector -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <!-- Left Column: Search Results List (7 cols) -->
+        <div class="lg:col-span-7 space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 id="results-heading" class="text-base font-bold text-slate-800">Featured & Popular Products</h3>
+            <span id="results-meta" class="text-xs font-medium text-slate-500">Showing built-in items</span>
+          </div>
 
-    <!-- Custom Private Database Section -->
-    <section id="custom-db" class="card">
-      <h2>Private Product Database</h2>
-      <p class="subtitle">Add your own store or custom products here. They are saved directly in your browser and searched instantly.</p>
+          <div id="search-results-list" class="space-y-3">
+            <!-- Populated dynamically by JS -->
+          </div>
+        </div>
 
-      <div class="search-box">
-        <input type="text" id="newCode" placeholder="Barcode (e.g., 1003)" />
-        <input type="text" id="newName" placeholder="Product Name" />
-        <input type="text" id="newBrand" placeholder="Brand / Category" />
-        <input type="text" id="newPrice" placeholder="Price (e.g., ₹45)" />
-        <button class="btn-secondary" onclick="addCustomProduct()">+ Add Product</button>
+        <!-- Right Column: Selected Product & Live Scannable Barcode Card (5 cols) -->
+        <div class="lg:col-span-5 lg:sticky lg:top-24">
+          <div id="inspector-card" class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="bg-slate-900 text-white px-5 py-3.5 flex items-center justify-between">
+              <span class="text-xs font-bold uppercase tracking-wider text-indigo-300">Active Barcode Preview</span>
+              <span id="inspector-source-badge" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-500/20 text-indigo-200 border border-indigo-400/30">Built-in DB</span>
+            </div>
+
+            <div class="p-5 sm:p-6 space-y-5">
+              <!-- Product Details -->
+              <div>
+                <div class="flex items-center gap-2 text-xs font-semibold text-indigo-600 uppercase tracking-wide mb-1">
+                  <span id="inspector-brand">Nestlé Maggi</span>
+                  <span>•</span>
+                  <span id="inspector-category">Instant Noodles</span>
+                </div>
+                <h4 id="inspector-name" class="text-xl font-bold text-slate-900 leading-snug">Maggi 2-Minute Masala Instant Noodles</h4>
+                <p id="inspector-size" class="text-sm text-slate-500 mt-1">Pack Size: 70g | Format: EAN-13</p>
+              </div>
+
+              <!-- Visual Barcode Render Box -->
+              <div class="bg-white border-2 border-dashed border-slate-200 rounded-xl p-4 flex flex-col items-center justify-center min-h-[150px]">
+                <svg id="barcode-svg" class="max-w-full h-auto"></svg>
+                <p id="barcode-error-msg" class="hidden text-xs text-rose-600 font-medium mt-2"></p>
+              </div>
+
+              <!-- Barcode Digits Display -->
+              <div class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 flex items-center justify-between">
+                <div>
+                  <span class="block text-[11px] font-semibold uppercase tracking-wider text-slate-400">UPC / EAN Code</span>
+                  <span id="inspector-code" class="font-mono text-lg font-bold text-slate-900 tracking-wider">8901058851298</span>
+                </div>
+                <button
+                  type="button"
+                  onclick="copyCurrentBarcode()"
+                  class="px-3.5 py-2 rounded-lg bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 font-semibold text-xs shadow-sm transition flex items-center gap-1.5 cursor-pointer"
+                >
+                  <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                  <span>Copy Code</span>
+                </button>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="grid grid-cols-2 gap-3 pt-1">
+                <button
+                  type="button"
+                  onclick="downloadBarcodePNG()"
+                  class="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs sm:text-sm shadow-sm transition flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                  </svg>
+                  <span>Download PNG</span>
+                </button>
+                <button
+                  type="button"
+                  id="save-to-custom-btn"
+                  onclick="saveInspectedToDatabase()"
+                  class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs sm:text-sm shadow-sm transition flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                  </svg>
+                  <span>Save to My DB</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-
-      <div class="db-list" id="customDbList"></div>
     </section>
 
-    <!-- About Section -->
-    <section id="about" class="card">
-      <h2>How It Works</h2>
-      <p class="subtitle" style="margin-bottom: 0;">
-        This hybrid lookup engine prioritizes your local custom inventory so private items, fresh produce, or local store SKUs resolve instantaneously offline, while seamlessly falling back to the Open Food Facts global API for packaged retail goods.
-      </p>
+    <!-- ==================== TAB 2: PRODUCT DATABASE (ADD / EDIT / DELETE) ==================== -->
+    <section id="view-database" class="hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <!-- Add / Edit Product Form (4 cols) -->
+        <div class="lg:col-span-4 bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h3 id="form-title" class="text-lg font-bold text-slate-900">Add New Product</h3>
+            <button type="button" id="cancel-edit-btn" onclick="resetProductForm()" class="hidden text-xs font-semibold text-rose-600 hover:underline">Cancel Edit</button>
+          </div>
+
+          <form id="product-form" onsubmit="event.preventDefault(); handleSaveProduct();" class="space-y-4">
+            <input type="hidden" id="edit-product-id" value="" />
+
+            <div>
+              <label for="prod-name" class="block text-xs font-semibold text-slate-700 mb-1">Product Name *</label>
+              <input type="text" id="prod-name" required placeholder="e.g. Maggi Double Masala Noodles" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label for="prod-brand" class="block text-xs font-semibold text-slate-700 mb-1">Brand *</label>
+                <input type="text" id="prod-brand" required placeholder="e.g. Nestlé" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+              </div>
+              <div>
+                <label for="prod-size" class="block text-xs font-semibold text-slate-700 mb-1">Weight / Size</label>
+                <input type="text" id="prod-size" placeholder="e.g. 140g" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+              </div>
+            </div>
+
+            <div>
+              <label for="prod-category" class="block text-xs font-semibold text-slate-700 mb-1">Category</label>
+              <select id="prod-category" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <option value="Instant Noodles & Pasta">Instant Noodles & Pasta</option>
+                <option value="Dairy & Bakery">Dairy & Bakery</option>
+                <option value="Biscuits & Snacks">Biscuits & Snacks</option>
+                <option value="Staples & Spices">Staples & Spices</option>
+                <option value="Beverages">Beverages</option>
+                <option value="Personal Care">Personal Care</option>
+                <option value="Household">Household</option>
+                <option value="General Grocery">General Grocery</option>
+              </select>
+            </div>
+
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label for="prod-barcode" class="block text-xs font-semibold text-slate-700">Barcode (EAN-13 / UPC) *</label>
+                <button type="button" onclick="fillGeneratedEAN13()" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 cursor-pointer">
+                  + Auto-Generate EAN-13
+                </button>
+              </div>
+              <input type="text" id="prod-barcode" required placeholder="e.g. 8901058851304" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+            </div>
+
+            <button type="submit" id="submit-product-btn" class="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm shadow-sm transition cursor-pointer">
+              Save Product to Database
+            </button>
+          </form>
+        </div>
+
+        <!-- Product Database Table (8 cols) -->
+        <div class="lg:col-span-8 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="p-5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div>
+              <h3 class="text-lg font-bold text-slate-900">Stored Product Catalog</h3>
+              <p class="text-xs text-slate-500">All items below are saved locally in your browser and searchable immediately.</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <input
+                type="text"
+                id="db-filter-input"
+                oninput="renderDatabaseTable()"
+                placeholder="Filter catalog..."
+                class="px-3 py-2 rounded-xl border border-slate-300 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+              <button type="button" onclick="resetToDefaultDatabase()" title="Restore default products" class="px-3 py-2 rounded-xl border border-slate-300 hover:bg-slate-100 text-xs font-semibold text-slate-700 transition whitespace-nowrap cursor-pointer">
+                Reset Defaults
+              </button>
+            </div>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                  <th class="py-3 px-4">Product</th>
+                  <th class="py-3 px-4">Category</th>
+                  <th class="py-3 px-4">Barcode / UPC</th>
+                  <th class="py-3 px-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="database-table-body" class="divide-y divide-slate-100 text-sm">
+                <!-- Populated dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </section>
+
+    <!-- ==================== TAB 3: SEARCH & SCAN HISTORY ==================== -->
+    <section id="view-history" class="hidden space-y-4">
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
+          <div>
+            <h3 class="text-lg font-bold text-slate-900">Recent Lookup History</h3>
+            <p class="text-xs text-slate-500">Click any previously searched or inspected product to view its barcode again.</p>
+          </div>
+          <button type="button" onclick="clearHistory()" class="px-4 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 font-semibold text-xs border border-rose-200 transition self-start sm:self-auto cursor-pointer">
+            Clear History
+          </button>
+        </div>
+
+        <div id="history-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 4: BULK IMPORT / EXPORT ==================== -->
+    <section id="view-importexport" class="hidden space-y-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Export Card -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
+          <div class="w-11 h-11 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-lg font-bold text-slate-900">Export Your Barcode Database</h3>
+            <p class="text-sm text-slate-500 mt-1">Download your entire product and barcode catalog as a JSON backup or CSV spreadsheet for Excel / POS billing systems.</p>
+          </div>
+          <div class="flex flex-wrap gap-3 pt-2">
+            <button type="button" onclick="exportDatabaseJSON()" class="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm shadow-sm transition cursor-pointer">
+              Download JSON Backup
+            </button>
+            <button type="button" onclick="exportDatabaseCSV()" class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm shadow-sm transition cursor-pointer">
+              Download CSV (Excel)
+            </button>
+          </div>
+        </div>
+
+        <!-- Import Card -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
+          <div class="w-11 h-11 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-lg font-bold text-slate-900">Bulk Import Products (JSON or CSV)</h3>
+            <p class="text-sm text-slate-500 mt-1">Paste JSON array or CSV lines (<code class="text-xs bg-slate-100 px-1.5 py-0.5 rounded">name,brand,category,size,barcode</code>) to add multiple items at once.</p>
+          </div>
+          <textarea
+            id="bulk-import-textarea"
+            rows="4"
+            placeholder="Maggi Chicken Noodles,Nestlé,Instant Noodles & Pasta,70g,8901058851359&#10;Britannia Marie Gold,Britannia,Biscuits & Snacks,250g,8901063092105"
+            class="w-full p-3 rounded-xl border border-slate-300 font-mono text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          ></textarea>
+          <div class="flex items-center justify-between gap-3">
+            <label class="px-3.5 py-2 rounded-xl border border-slate-300 hover:bg-slate-50 text-xs font-semibold text-slate-700 cursor-pointer transition">
+              <span>Upload .JSON / .CSV File</span>
+              <input type="file" id="import-file-input" accept=".json,.csv,.txt" onchange="handleFileUpload(event)" class="hidden" />
+            </label>
+            <button type="button" onclick="processBulkImport()" class="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-sm transition cursor-pointer">
+              Import Items
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
   </main>
 
   <!-- Footer -->
-  <footer>
-    <div class="footer-links">
-      <a href="#scanner">Barcode Search</a>
-      <a href="#custom-db">Manage Inventory</a>
-      <a href="#about">Documentation</a>
+  <footer class="bg-white border-t border-slate-200 py-4 mt-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-2">
+      <span>Barcode & UPC Product Finder Pro • Built-in Grocery Catalog + Live Open Food Facts Lookup</span>
+      <span>Supports EAN-13, UPC-A, and CODE128 Rendering</span>
     </div>
-    <p>© 2026 BarcodeFinder Pro. Built for fast inventory & retail lookup.</p>
   </footer>
 
+  <!-- Hidden Canvas for PNG Export -->
+  <canvas id="export-canvas" class="hidden"></canvas>
+
   <script>
-    // ==========================================
-    // 1. CUSTOM PRIVATE PRODUCT DATABASE
-    // You can edit these defaults or add more via the UI!
-    // ==========================================
-    const defaultCustomProducts = {
-      "1001": {
-        name: "Organic Basmati Rice (1 kg)",
-        brand: "Local Farm Harvest",
-        price: "₹120",
-        notes: "Aisle 2 - Grains & Staples"
+    /**
+     * ============================================================================
+     * 1. BUILT-IN GROCERY & EVERYDAY PRODUCT DATABASE
+     * ============================================================================
+     */
+    const DEFAULT_PRODUCTS = [
+      {
+        id: 'prod-1',
+        name: 'Maggi 2-Minute Masala Instant Noodles',
+        brand: 'Nestlé Maggi',
+        category: 'Instant Noodles & Pasta',
+        size: '70g',
+        barcode: '8901058851298',
+        source: 'Built-in DB'
       },
-      "1002": {
-        name: "Fresh Green Cabbage (Per Pc)",
-        brand: "Fresh Produce",
-        price: "₹35",
-        notes: "Produce Section - Daily Stock"
+      {
+        id: 'prod-2',
+        name: 'Maggi Double Masala Instant Noodles',
+        brand: 'Nestlé Maggi',
+        category: 'Instant Noodles & Pasta',
+        size: '140g (2-Pack)',
+        barcode: '8901058851304',
+        source: 'Built-in DB'
+      },
+      {
+        id: 'prod-3',
+        name: 'Maggi Special Masala Instant Noodles',
+        brand: 'Nestlé Maggi',
+        category: 'Instant Noodles & Pasta',
+        size: '70g',
+        barcode: '8901058865226',
+        source: 'Built-in DB'
+      },
+      {
+        id: 'prod-4',
+        name: 'Amul Pasteurised Table Butter',
+        brand: 'Amul',
+        category: 'Dairy & Bakery',
+        size: '100g',
+        barcode: '8901262010016',
+        source: 'Built-in DB'
+      },
+      {
+        id: 'prod-5',
+        name: 'Amul Taaza Homogenised Toned Milk',
+        brand: 'Amul',
+        category: 'Dairy & Bakery',
+        size: '1L Tetra Pack',
+        barcode: '8901262150125',
+        source: 'Built-in DB'
+      },
+      {
+        id: 'prod-6',
+        name: 'Parle-G Original Gluco Biscuits',
+        brand: 'Parle',
+        category: 'Biscuits & Snacks',
+        size: '250g',
+        barcode: '8901719110016',
+        source: 'Built-in DB'
+      },
+      {
+        id: 'prod-7',
+        name: 'Britannia Good Day Cashew Cookies',
+        brand: 'Britannia',
+        category: 'Biscuits & Snacks',
+        size: '200g',
+        barcode: '8901063010123',
+        source: 'Built-in DB'
+      },
+      {
+        id: 'prod-8',
+        name: 'Tata Salt Vacuum Evaporated Iodized Salt',
+        brand: 'Tata Consumer',
+        category: 'Staples & Spices',
+        size: '1kg',
+        barcode: '8904043901015',
+        source: 'Built-in DB'
+      },
+      {
+        id: 'prod-9',
+        name: 'Aashirvaad Shudh Chakki Whole Wheat Atta',
+        brand: 'ITC Aashirvaad',
+        category: 'Staples & Spices',
+        size: '5kg',
+        barcode: '8901725121112',
+        source: 'Built-in DB'
+      },
+      {
+        id: 'prod-10',
+        name: 'Lay’s India’s Magic Masala Potato Chips',
+        brand: 'PepsiCo Lay’s',
+        category: 'Biscuits & Snacks',
+        size: '50g',
+        barcode: '8901491101837',
+        source: 'Built-in DB'
+      },
+      {
+        id: 'prod-11',
+        name: 'Lay’s Classic Salted Potato Chips',
+        brand: 'PepsiCo Lay’s',
+        category: 'Biscuits & Snacks',
+        size: '50g',
+        barcode: '8901491101813',
+        source: 'Built-in DB'
+      },
+      {
+        id: 'prod-12',
+        name: 'Coca-Cola Original Taste Soft Drink',
+        brand: 'Coca-Cola',
+        category: 'Beverages',
+        size: '750ml',
+        barcode: '8901764012273',
+        source: 'Built-in DB'
+      },
+      {
+        id: 'prod-13',
+        name: 'Red Label Natural Care Tea',
+        brand: 'Brooke Bond',
+        category: 'Beverages',
+        size: '500g',
+        barcode: '8901030705212',
+        source: 'Built-in DB'
+      },
+      {
+        id: 'prod-14',
+        name: 'Kissan Fresh Tomato Ketchup',
+        brand: 'HUL Kissan',
+        category: 'Staples & Spices',
+        size: '950g Pouch',
+        barcode: '8901030654121',
+        source: 'Built-in DB'
+      },
+      {
+        id: 'prod-15',
+        name: 'Dettol Original Germ Protection Bathing Soap',
+        brand: 'Reckitt Dettol',
+        category: 'Personal Care',
+        size: '125g',
+        barcode: '8901396311201',
+        source: 'Built-in DB'
       }
-    };
+    ];
 
-    // Load saved products from browser storage or fall back to defaults
-    let customDatabase = JSON.parse(localStorage.getItem("myCustomProducts")) || defaultCustomProducts;
+    const STORAGE_KEY_PRODUCTS = 'barcode_finder_products_v2';
+    const STORAGE_KEY_HISTORY = 'barcode_finder_history_v2';
 
-    function saveDatabase() {
-      localStorage.setItem("myCustomProducts", JSON.stringify(customDatabase));
-      renderCustomList();
+    let productsDB = [];
+    let searchHistory = [];
+    let currentInspectedProduct = null;
+
+    /**
+     * ============================================================================
+     * 2. INITIALIZATION & STORAGE HELPERS
+     * ============================================================================
+     */
+    function initApp() {
+      try {
+        const savedProducts = localStorage.getItem(STORAGE_KEY_PRODUCTS);
+        if (savedProducts) {
+          const parsed = JSON.parse(savedProducts);
+          productsDB = Array.isArray(parsed) && parsed.length > 0 ? parsed : [...DEFAULT_PRODUCTS];
+        } else {
+          productsDB = [...DEFAULT_PRODUCTS];
+          saveProductsToStorage();
+        }
+      } catch (err) {
+        console.error('Failed to load products from localStorage:', err);
+        productsDB = [...DEFAULT_PRODUCTS];
+      }
+
+      try {
+        const savedHistory = localStorage.getItem(STORAGE_KEY_HISTORY);
+        if (savedHistory) {
+          const parsedHist = JSON.parse(savedHistory);
+          searchHistory = Array.isArray(parsedHist) ? parsedHist : [];
+        }
+      } catch (err) {
+        console.error('Failed to load history from localStorage:', err);
+        searchHistory = [];
+      }
+
+      // Wire input clear button visibility
+      const searchInput = document.getElementById('search-input');
+      const clearBtn = document.getElementById('clear-search-btn');
+      if (searchInput && clearBtn) {
+        searchInput.addEventListener('input', () => {
+          if (searchInput.value.trim().length > 0) {
+            clearBtn.classList.remove('hidden');
+          } else {
+            clearBtn.classList.add('hidden');
+          }
+        });
+      }
+
+      updateBadges();
+      renderProductCards(productsDB.slice(0, 8), 'Featured & Popular Products', `Showing ${Math.min(8, productsDB.length)} of ${productsDB.length} stored items`);
+      inspectProduct(productsDB[0], false);
+      renderDatabaseTable();
+      renderHistoryList();
     }
 
-    // Render the list of custom items in the UI
-    function renderCustomList() {
-      const listContainer = document.getElementById("customDbList");
-      listContainer.innerHTML = "";
+    function saveProductsToStorage() {
+      try {
+        localStorage.setItem(STORAGE_KEY_PRODUCTS, JSON.stringify(productsDB));
+        updateBadges();
+      } catch (e) {
+        showToast('Could not save to browser storage.', 'error');
+      }
+    }
 
-      const codes = Object.keys(customDatabase);
-      if (codes.length === 0) {
-        listContainer.innerHTML = `<p style="color: var(--text-muted); font-size: 0.9rem;">No custom products added yet.</p>`;
+    function saveHistoryToStorage() {
+      try {
+        localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(searchHistory));
+        updateBadges();
+      } catch (e) {
+        console.error('History save failed:', e);
+      }
+    }
+
+    function updateBadges() {
+      const dbBadge = document.getElementById('db-count-badge');
+      const histBadge = document.getElementById('history-count-badge');
+      if (dbBadge) dbBadge.textContent = productsDB.length;
+      if (histBadge) histBadge.textContent = searchHistory.length;
+    }
+
+    /**
+     * ============================================================================
+     * 3. NAVIGATION TABS & TOAST NOTIFICATIONS
+     * ============================================================================
+     */
+    function switchTab(tabName) {
+      const tabs = ['search', 'database', 'history', 'importexport'];
+      tabs.forEach((t) => {
+        const viewEl = document.getElementById(`view-${t}`);
+        const btnEl = document.getElementById(`tab-btn-${t}`);
+        if (viewEl) {
+          viewEl.classList.toggle('hidden', t !== tabName);
+        }
+        if (btnEl) {
+          if (t === tabName) {
+            btnEl.classList.add('bg-white', 'text-indigo-600', 'shadow-sm', 'font-semibold');
+            btnEl.classList.remove('text-slate-600', 'font-medium');
+          } else {
+            btnEl.classList.remove('bg-white', 'text-indigo-600', 'shadow-sm', 'font-semibold');
+            btnEl.classList.add('text-slate-600', 'font-medium');
+          }
+        }
+      });
+
+      if (tabName === 'database') renderDatabaseTable();
+      if (tabName === 'history') renderHistoryList();
+    }
+
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toast-container');
+      if (!container) return;
+
+      const toast = document.createElement('div');
+      const colors = {
+        success: 'bg-slate-900 text-white border-slate-700',
+        error: 'bg-rose-600 text-white border-rose-500',
+        info: 'bg-indigo-600 text-white border-indigo-500'
+      };
+
+      toast.className = `pointer-events-auto px-4 py-3 rounded-xl border shadow-lg text-sm font-medium flex items-center justify-between gap-3 transition-all duration-300 transform translate-y-2 opacity-0 ${colors[type] || colors.success}`;
+      toast.innerHTML = `
+        <span>${escapeHtml(message)}</span>
+        <button type="button" class="text-white/70 hover:text-white font-bold text-xs" onclick="this.parentElement.remove()">✕</button>
+      `;
+
+      container.appendChild(toast);
+      requestAnimationFrame(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+      });
+
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => toast.remove(), 300);
+      }, 3200);
+    }
+
+    /**
+     * ============================================================================
+     * 4. CORE SEARCH ENGINE (LOCAL DB + OPEN FOOD FACTS LIVE API)
+     * ============================================================================
+     */
+    function quickSearch(term) {
+      const input = document.getElementById('search-input');
+      const clearBtn = document.getElementById('clear-search-btn');
+      if (input) {
+        input.value = term;
+        if (clearBtn) clearBtn.classList.remove('hidden');
+      }
+      searchBarcode();
+    }
+
+    function clearSearchInput() {
+      const input = document.getElementById('search-input');
+      const clearBtn = document.getElementById('clear-search-btn');
+      if (input) input.value = '';
+      if (clearBtn) clearBtn.classList.add('hidden');
+      renderProductCards(productsDB.slice(0, 8), 'Featured & Popular Products', `Showing ${Math.min(8, productsDB.length)} of ${productsDB.length} stored items`);
+    }
+
+    async function searchBarcode() {
+      const inputEl = document.getElementById('search-input');
+      const loadingEl = document.getElementById('search-loading');
+      const useLiveApi = document.getElementById('live-api-toggle')?.checked ?? true;
+
+      const rawQuery = (inputEl?.value || '').trim();
+      if (!rawQuery) {
+        renderProductCards(productsDB, 'All Stored Products', `${productsDB.length} items available`);
+        showToast('Showing all stored products. Type a name or barcode to filter.', 'info');
         return;
       }
 
-      codes.forEach(code => {
-        const item = customDatabase[code];
-        const div = document.createElement("div");
-        div.className = "db-item";
-        div.innerHTML = `
-          <div class="db-item-info">
-            <strong>${item.name} (${item.price || "N/
+      const queryLower = rawQuery.toLowerCase();
+      const digitsOnly = rawQuery.replace(/\D/g, '');
+      const isBarcodeQuery = digitsOnly.length >= 6 && digitsOnly.length === rawQuery.replace(/[\s-]/g, '').length;
+
+      // 1. Search Local Database First
+      const localMatches = productsDB.filter((item) => {
+        const nameMatch = item.name.toLowerCase().includes(queryLower);
+        const brandMatch = (item.brand || '').toLowerCase().includes(queryLower);
+        const catMatch = (item.category || '').toLowerCase().includes(queryLower);
+        const codeMatch = item.barcode.includes(digitsOnly || queryLower);
+        return nameMatch || brandMatch || catMatch || codeMatch;
+      });
+
+      // Immediately display local results if found
+      if (localMatches.length > 0) {
+        renderProductCards(
+          localMatches,
+          `Search Results for "${rawQuery}"`,
+          `Found ${localMatches.length} match${localMatches.length > 1 ? 'es' : ''} in Local Database`
+        );
+        inspectProduct(localMatches[0], true);
+      }
+
+      // 2. Query Open Food Facts Live API if enabled & needed (or to enrich name search)
+      if (useLiveApi && (localMatches.length === 0 || isBarcodeQuery)) {
+        if (loadingEl) loadingEl.classList.remove('hidden');
+        try {
+          let apiProducts = [];
+
+          if (isBarcodeQuery) {
+            const resp = await fetch(`https://world.openfoodfacts.org/api/v2/product/${encodeURIComponent(digitsOnly)}.json`);
+            if (resp.ok) {
+              const data = await resp.json();
+              if (data.status === 1 && data.product) {
+                const p = data.product;
+                apiProducts.push({
+                  id: `off-${digitsOnly}`,
+                  name: p.product_name || p.product_name_en || `Product #${digitsOnly}`,
+                  brand: p.brands || 'Global Brand',
+                  category: (p.categories_tags && p.categories_tags[0] ? p.categories_tags[0].replace('en:', '').replace(/-/g, ' ') : 'Packaged Food'),
+                  size: p.quantity || 'Standard Pack',
+                  barcode: digitsOnly,
+                  source: 'Open Food Facts API'
+                });
+              }
+            }
+          } else {
+            const resp = await fetch(`https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(rawQuery)}&search_simple=1&action=process&json=1&page_size=8`);
+            if (resp.ok) {
+              const data = await resp.json();
+              if (Array.isArray(data.products)) {
+                apiProducts = data.products
+                  .filter((p) => p.code && (p.product_name || p.product_name_en))
+                  .map((p) => ({
+                    id: `off-${p.code}`,
+                    name: p.product_name || p.product_name_en,
+                    brand: p.brands || 'Global Brand',
+                    category: (p.categories_tags && p.categories_tags[0] ? p.categories_tags[0].replace('en:', '').replace(/-/g, ' ') : 'Grocery Item'),
+                    size: p.quantity || 'Standard Pack',
+                    barcode: String(p.code).trim(),
+                    source: 'Open Food Facts API'
+                  }));
+              }
+            }
+          }
+
+          // Merge local + unique API products
+          const existingCodes = new Set(localMatches.map((m) => m.barcode));
+          const uniqueApi = apiProducts.filter((a) => !existingCodes.has(a.barcode));
+          const combined = [...localMatches, ...uniqueApi];
+
+          if (combined.length > 0) {
+            renderProductCards(
+              combined,
+              `Results for "${rawQuery}"`,
+              `Found ${combined.length} item${combined.length > 1 ? 's' : ''} (Local + Global API)`
+            );
+            if (localMatches.length === 0) {
+              inspectProduct(combined[0], true);
+            }
+          } else {
+            renderEmptySearchState(rawQuery);
+          }
+        } catch (error) {
+          console.warn('Live API lookup failed or offline:', error);
+          if (localMatches.length === 0) {
+            renderEmptySearchState(rawQuery);
+          }
+        } finally {
+          if (loadingEl) loadingEl.classList.add('hidden');
+        }
+      } else if (localMatches.length === 0) {
+        renderEmptySearchState(rawQuery);
+      }
+    }
+
+    function renderEmptySearchState(query) {
+      const listEl = document.getElementById('search-results-list');
+      const headingEl = document.getElementById('results-heading');
+      const metaEl = document.getElementById('results-meta');
+
+      if (headingEl) headingEl.textContent = `No matches for "${query}"`;
+      if (metaEl) metaEl.textContent = '0 items found';
+
+      if (listEl) {
+        listEl.innerHTML = `
+          <div class="bg-white rounded-2xl border border-slate-200 p-8 text-center space-y-3">
+            <div class="w-12 h-12 rounded-full bg-amber-50 text-amber-600 mx-auto flex items-center justify-center">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h4 class="text-base font-bold text-slate-900">Product Not Found Yet</h4>
+            <p class="text-sm text-slate-500 max-w-md mx-auto">We couldn't find "<strong>${escapeHtml(query)}</strong>" in the catalog. You can add it to your Product Database with an auto-generated EAN-13 barcode in one click!</p>
+            <div class="pt-2">
+              <button type="button" onclick="prefillAndAddProduct('${escapeAttr(query)}')" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm shadow-sm transition cursor-pointer">
+                + Create Barcode for "${escapeHtml(query)}"
+              </button>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    function prefillAndAddProduct(query) {
+      switchTab('database');
+      resetProductForm();
+      const digits = query.replace(/\D/g, '');
+      if (digits.length >= 8 && digits.length === query.length) {
+        document.getElementById('prod-barcode').value = digits;
+      } else {
+        document.getElementById('prod-name').value = query;
+        fillGeneratedEAN13();
+      }
+    }
+
+    function renderProductCards(items, headingText, metaText) {
+      const listEl = document.getElementById('search-results-list');
+      const headingEl = document.getElementById('results-heading');
+      const metaEl = document.getElementById('results-meta');
+
+      if (headingEl) headingEl.textContent = headingText;
+      if (metaEl) metaEl.textContent = metaText;
+      if (!listEl) return;
+
+      listEl.innerHTML = items
+        .map((item) => {
+          const isSelected = currentInspectedProduct && currentInspectedProduct.barcode === item.barcode;
+          const badgeClass =
+            item.source === 'Open Food Facts API'
+              ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+              : 'bg-indigo-50 text-indigo-700 border-indigo-200';
+
+          return `
+            <div
+              onclick='inspectProductByObj(${JSON.stringify(item).replace(/'/g, "&#39;")})'
+              class="group bg-white rounded-2xl border ${isSelected ? 'border-indigo-500 ring-2 ring-indigo-500/20' : 'border-slate-200 hover:border-indigo-300'} p-4 sm:p-5 shadow-sm transition cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+            >
+              <div class="space-y-1 min-w-0">
+                <div class="flex flex-wrap items-center gap-2">
+                  <span class="text-xs font-bold text-indigo-600">${escapeHtml(item.brand || 'Generic')}</span>
+                  <span class="text-slate-300">•</span>
+                  <span class="text-xs text-slate-500 capitalize">${escapeHtml(item.category || 'Grocery')}</span>
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold border ${badgeClass}">${escapeHtml(item.source || 'Built-in DB')}</span>
+                </div>
+                <h4 class="text-base font-bold text-slate-900 group-hover:text-indigo-600 transition truncate">${escapeHtml(item.name)}</h4>
+                <p class="text-xs text-slate-500">Size: ${escapeHtml(item.size || 'Standard')}</p>
+              </div>
+
+              <div class="flex items-center justify-between sm:justify-end gap-3 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
+                <div class="bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-xl text-right">
+                  <span class="block text-[10px] font-semibold uppercase text-slate-400">UPC / EAN</span>
+                  <span class="font-mono text-sm font-bold text-slate-800">${escapeHtml(item.barcode)}</span>
+                </div>
+                <button
+                  type="button"
+                  onclick="event.stopPropagation(); quickCopy('${escapeAttr(item.barcode)}')"
+                  title="Copy Barcode"
+                  class="p-2.5 rounded-xl bg-slate-100 hover:bg-indigo-600 text-slate-600 hover:text-white transition"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          `;
+        })
+        .join('');
+    }
+
+    /**
+     * ============================================================================
+     * 5. BARCODE VISUAL RENDERER & INSPECTOR ACTIONS
+     * ============================================================================
+     */
+    function inspectProductByObj(product) {
+      inspectProduct(product, true);
+    }
+
+    function inspectProduct(product, recordInHistory = true) {
+      if (!product) return;
+      currentInspectedProduct = product;
+
+      document.getElementById('inspector-brand').textContent = product.brand || 'Generic Brand';
+      document.getElementById('inspector-category').textContent = product.category || 'Grocery';
+      document.getElementById('inspector-name').textContent = product.name;
+      document.getElementById('inspector-code').textContent = product.barcode;
+      document.getElementById('inspector-source-badge').textContent = product.source || 'Built-in DB';
+
+      const cleanCode = String(product.barcode).replace(/\s+/g, '');
+      const format = detectBarcodeFormat(cleanCode);
+      document.getElementById('inspector-size').textContent = `Pack Size: ${product.size || 'Standard'} | Format: ${format}`;
+
+      renderVisualBarcode(cleanCode, format);
+
+      if (recordInHistory) {
+        addToHistory(product);
+      }
+    }
+
+    function detectBarcodeFormat(code) {
+      if (/^\d{13}$/.test(code)) return 'EAN13';
+      if (/^\d{12}$/.test(code)) return 'UPC';
+      if (/^\d{8}$/.test(code)) return 'EAN8';
+      return 'CODE128';
+    }
+
+    function renderVisualBarcode(code, format) {
+      const svgEl = document.getElementById('barcode-svg');
+      const errEl = document.getElementById('barcode-error-msg');
+      if (!svgEl) return;
+
+      errEl.classList.add('hidden');
+      try {
+        JsBarcode(svgEl, code, {
+          format: format,
+          lineColor: '#0f172a',
+          width: 2,
+          height: 75,
+          displayValue: true,
+          font: 'JetBrains Mono',
+          fontSize: 15,
+          margin: 8,
+          background: '#ffffff'
+        });
+      } catch (e) {
+        // Fallback to CODE128 if checksum of custom EAN-13 is non-standard
+        try {
+          JsBarcode(svgEl, code, {
+            format: 'CODE128',
+            lineColor: '#0f172a',
+            width: 2,
+            height: 75,
+            displayValue: true,
+            font: 'JetBrains Mono',
+            fontSize: 15,
+            margin: 8,
+            background: '#ffffff'
+          });
+        } catch (fallbackErr) {
+          svgEl.innerHTML = '';
+          errEl.textContent = 'Invalid barcode characters for visual rendering.';
+          errEl.classList.remove('hidden');
+        }
+      }
+    }
+
+    function copyCurrentBarcode() {
+      if (!currentInspectedProduct) return;
+      quickCopy(currentInspectedProduct.barcode);
+    }
+
+    function quickCopy(text) {
+      const tempInput = document.createElement('textarea');
+      tempInput.value = text;
+      tempInput.style.position = 'fixed';
+      tempInput.style.opacity = '0';
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      try {
+        document.execCommand('copy');
+        showToast(`Copied barcode: ${text}`, 'success');
+      } catch (err) {
+        showToast('Failed to copy barcode.', 'error');
+      }
+      document.body.removeChild(tempInput);
+    }
+
+    function downloadBarcodePNG() {
+      if (!currentInspectedProduct) return;
+      const svgEl = document.getElementById('barcode-svg');
+      const canvas = document.getElementById('export-canvas');
+      if (!svgEl || !canvas) return;
+
+      const svgData = new XMLSerializer().serializeToString(svgEl);
+      const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+      const url = URL.createObjectURL(svgBlob);
+
+      const img = new Image();
+      img.onload = function () {
+        canvas.width = img.width + 40;
+        canvas.height = img.height + 50;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 20, 10);
+
+        ctx.fillStyle = '#334155';
+        ctx.font = 'bold 13px Inter, sans-serif';
+        ctx.textAlign = 'center';
+        const label = currentInspectedProduct.name.slice(0, 42);
+        ctx.fillText(label, canvas.width / 2, canvas.height - 14);
+
+        const pngUrl = canvas.toDataURL('image/png');
+        const link = document.createElement('a');
+        link.href = pngUrl;
+        link.download = `barcode-${currentInspectedProduct.barcode}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        showToast('Barcode PNG downloaded!', 'success');
+      };
+      img.src = url;
+    }
+
+    function saveInspectedToDatabase() {
+      if (!currentInspectedProduct) return;
+      const exists = productsDB.some((p) => p.barcode === currentInspectedProduct.barcode);
+      if (exists) {
+        showToast('This product is already in your Product Database!', 'info');
+        return;
+      }
+
+      const newEntry = {
+        ...currentInspectedProduct,
+        id: `custom-${Date.now()}`,
+        source: 'Custom DB'
+      };
+      productsDB.unshift(newEntry);
+      saveProductsToStorage();
+      renderDatabaseTable();
+      showToast(`Saved "${newEntry.name}" to your database!`, 'success');
+    }
+
+    /**
+     * ============================================================================
+     * 6. CUSTOM DATABASE MANAGEMENT (ADD / EDIT / DELETE / GENERATE EAN-13)
+     * ============================================================================
+     */
+    function generateValidEAN13() {
+      // Prefix 890 (GS1 India) + 9 random digits + valid check digit
+      let base = '890';
+      for (let i = 0; i < 9; i++) {
+        base += Math.floor(Math.random() * 10);
+      }
+      let sum = 0;
+      for (let i = 0; i < 12; i++) {
+        const digit = parseInt(base[i], 10);
+        sum += i % 2 === 0 ? digit : digit * 3;
+      }
+      const checkDigit = (10 - (sum % 10)) % 10;
+      return base + checkDigit;
+    }
+
+    function fillGeneratedEAN13() {
+      const barcodeInput = document.getElementById('prod-barcode');
+      if (barcodeInput) {
+        barcodeInput.value = generateValidEAN13();
+        showToast('Generated valid GS1 EAN-13 barcode!', 'info');
+      }
+    }
+
+    function handleSaveProduct() {
+      const editId = document.getElementById('edit-product-id').value.trim();
+      const name = document.getElementById('prod-name').value.trim();
+      const brand = document.getElementById('prod-brand').value.trim();
+      const size = document.getElementById('prod-size').value.trim() || 'Standard';
+      const category = document.getElementById('prod-category').value;
+      const barcode = document.getElementById('prod-barcode').value.trim().replace(/\s+/g, '');
+
+      if (!name || !brand || !barcode) {
+        showToast('Please fill in Product Name, Brand, and Barcode.', 'error');
+        return;
+      }
+
+      if (editId) {
+        const idx = productsDB.findIndex((p) => p.id === editId);
+        if (idx !== -1) {
+          productsDB[idx] = {
+            ...productsDB[idx],
+            name,
+            brand,
+            size,
+            category,
+            barcode
+          };
+          showToast('Product updated successfully!', 'success');
+        }
+      } else {
+        const newProduct = {
+          id: `custom-${Date.now()}`,
+          name,
+          brand,
+          size,
+          category,
+          barcode,
+          source: 'Custom DB'
+        };
+        productsDB.unshift(newProduct);
+        inspectProduct(newProduct, true);
+        showToast('New product added to database!', 'success');
+      }
+
+      saveProductsToStorage();
+      resetProductForm();
+      renderDatabaseTable();
+      renderProductCards(productsDB.slice(0, 8), 'Featured & Popular Products', `Showing ${Math.min(8, productsDB.length)} of ${productsDB.length} stored items`);
+    }
+
+    function editProduct(id) {
+      const item = productsDB.find((p) => p.id === id);
+      if (!item) return;
+
+      document.getElementById('edit-product-id').value = item.id;
+      document.getElementById('prod-name').value = item.name;
+      document.getElementById('prod-brand').value = item.brand;
+      document.getElementById('prod-size').value = item.size || '';
+      document.getElementById('prod-category').value = item.category || 'General Grocery';
+      document.getElementById('prod-barcode').value = item.barcode;
+
+      document.getElementById('form-title').textContent = 'Edit Product';
+      document.getElementById('submit-product-btn').textContent = 'Update Product';
+      document.getElementById('cancel-edit-btn').classList.remove('hidden');
+    }
+
+    function resetProductForm() {
+      document.getElementById('product-form').reset();
+      document.getElementById('edit-product-id').value = '';
+      document.getElementById('form-title').textContent = 'Add New Product';
+      document.getElementById('submit-product-btn').textContent = 'Save Product to Database';
+      document.getElementById('cancel-edit-btn').classList.add('hidden');
+    }
+
+    function deleteProduct(id) {
+      productsDB = productsDB.filter((p) => p.id !== id);
+      saveProductsToStorage();
+      renderDatabaseTable();
+      showToast('Product deleted from database.', 'info');
+    }
+
+    function resetToDefaultDatabase() {
+      productsDB = [...DEFAULT_PRODUCTS];
+      saveProductsToStorage();
+      renderDatabaseTable();
+      renderProductCards(productsDB.slice(0, 8), 'Featured & Popular Products', `Showing ${Math.min(8, productsDB.length)} of ${productsDB.length} stored items`);
+      showToast('Restored default grocery catalog!', 'success');
+    }
+
+    function renderDatabaseTable() {
+      const tbody = document.getElementById('database-table-body');
+      const filterText = (document.getElementById('db-filter-input')?.value || '').toLowerCase().trim();
+      if (!tbody) return;
+
+      const filtered = productsDB.filter((item) => {
+        return (
+          item.name.toLowerCase().includes(filterText) ||
+          (item.brand || '').toLowerCase().includes(filterText) ||
+          (item.category || '').toLowerCase().includes(filterText) ||
+          item.barcode.includes(filterText)
+        );
+      });
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="4" class="py-8 text-center text-slate-500 text-sm">No matching products in your database.</td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = filtered
+        .map(
+          (item) => `
+          <tr class="hover:bg-slate-50 transition">
+            <td class="py-3.5 px-4">
+              <div class="font-semibold text-slate-900">${escapeHtml(item.name)}</div>
+              <div class="text-xs text-slate-500">${escapeHtml(item.brand)} • ${escapeHtml(item.size || 'Standard')}</div>
+            </td>
+            <td class="py-3.5 px-4">
+              <span class="px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-100 text-slate-700">${escapeHtml(item.category || 'Grocery')}</span>
+            </td>
+            <td class="py-3.5 px-4">
+              <button type="button" onclick="viewProductFromDB('${escapeAttr(item.id)}')" class="font-mono text-xs sm:text-sm font-bold text-indigo-600 hover:underline">
+                ${escapeHtml(item.barcode)}
+              </button>
+            </td>
+            <td class="py-3.5 px-4 text-right whitespace-nowrap space-x-1.5">
+              <button type="button" onclick="viewProductFromDB('${escapeAttr(item.id)}')" class="px-2.5 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold transition">
+                Barcode
+              </button>
+              <button type="button" onclick="editProduct('${escapeAttr(item.id)}')" class="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition">
+                Edit
+              </button>
+              <button type="button" onclick="deleteProduct('${escapeAttr(item.id)}')" class="px-2.5 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-semibold transition">
+                Delete
+              </button>
+            </td>
+          </tr>
+        `
+        )
+        .join('');
+    }
+
+    function viewProductFromDB(id) {
+      const item = productsDB.find((p) => p.id === id);
+      if (!item) return;
+      switchTab('search');
+      inspectProduct(item, true);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    /**
+     * ============================================================================
+     * 7. HISTORY MANAGEMENT
+     * ============================================================================
+     */
+    function addToHistory(product) {
+      const filtered = searchHistory.filter((h) => h.barcode !== product.barcode);
+      filtered.unshift({
+        ...product,
+        viewedAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      });
+      searchHistory = filtered.slice(0, 24);
+      saveHistoryToStorage();
+    }
+
+    function clearHistory() {
+      searchHistory = [];
+      saveHistoryToStorage();
+      renderHistoryList();
+      showToast('Lookup history cleared.', 'info');
+    }
+
+    function renderHistoryList() {
+      const container = document.getElementById('history-list');
+      if (!container) return;
+
+      if (searchHistory.length === 0) {
+        container.innerHTML = `
+          <div class="col-span-full py-10 text-center text-slate-500 text-sm">
+            No recent lookup history yet. Search or click any product to log it here!
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = searchHistory
+        .map(
+          (item) => `
+          <div
+            onclick='reopenFromHistory(${JSON.stringify(item).replace(/'/g, "&#39;")})'
+            class="p-4 rounded-xl border border-slate-200 hover:border-indigo-400 bg-slate-50/50 hover:bg-white transition cursor-pointer flex flex-col justify-between gap-3"
+          >
+            <div>
+              <div class="flex items-center justify-between text-xs text-slate-400 mb-1">
+                <span class="font-semibold text-indigo-600">${escapeHtml(item.brand || 'Brand')}</span>
+                <span>${escapeHtml(item.viewedAt || '')}</span>
+              </div>
+              <h4 class="font-bold text-slate-900 text-sm line-clamp-1">${escapeHtml(item.name)}</h4>
+            </div>
+            <div class="flex items-center justify-between pt-2 border-t border-slate-200/70">
+              <span class="font-mono text-xs font-bold text-slate-800">${escapeHtml(item.barcode)}</span>
+              <span class="text-xs font-semibold text-indigo-600">View Barcode →</span>
+            </div>
+          </div>
+        `
+        )
+        .join('');
+    }
+
+    function reopenFromHistory(item) {
+      switchTab('search');
+      inspectProduct(item, false);
+    }
+
+    /**
+     * ============================================================================
+     * 8. BULK IMPORT / EXPORT (JSON & CSV)
+     * ============================================================================
+     */
+    function exportDatabaseJSON() {
+      const dataStr = JSON.stringify(productsDB, null, 2);
+      triggerFileDownload(dataStr, 'barcode-database.json', 'application/json');
+      showToast('Exported JSON database!', 'success');
+    }
+
+    function exportDatabaseCSV() {
+      const headers = ['name', 'brand', 'category', 'size', 'barcode'];
+      const rows = productsDB.map((p) =>
+        headers.map((h) => `"${String(p[h] || '').replace(/"/g, '""')}"`).join(',')
+      );
+      const csvContent = [headers.join(','), ...rows].join('\n');
+      triggerFileDownload(csvContent, 'barcode-database.csv', 'text/csv;charset=utf-8;');
+      showToast('Exported CSV spreadsheet!', 'success');
+    }
+
+    function triggerFileDownload(content, filename, mimeType) {
+      const blob = new Blob([content], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function handleFileUpload(event) {
+      const file = event.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        document.getElementById('bulk-import-textarea').value = e.target.result || '';
+        showToast(`Loaded "${file.name}". Click "Import Items" to merge.`, 'info');
+      };
+      reader.readAsText(file);
+    }
+
+    function processBulkImport() {
+      const raw = document.getElementById('bulk-import-textarea').value.trim();
+      if (!raw) {
+        showToast('Please paste JSON or CSV content first.', 'error');
+        return;
+      }
+
+      let importedCount = 0;
+
+      try {
+        if (raw.startsWith('[')) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) {
+            parsed.forEach((item) => {
+              if (item.name && item.barcode) {
+                productsDB.unshift({
+                  id: `imp-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+                  name: String(item.name).trim(),
+                  brand: String(item.brand || 'Imported').trim(),
+                  category: String(item.category || 'General Grocery').trim(),
+                  size: String(item.size || 'Standard').trim(),
+                  barcode: String(item.barcode).trim(),
+                  source: 'Imported'
+                });
+                importedCount++;
+              }
+            });
+          }
+        } else {
+          // Parse CSV lines: name,brand,category,size,barcode
+          const lines = raw.split(/\r?\n/).filter((l) => l.trim().length > 0);
+          lines.forEach((line, index) => {
+            if (index === 0 && line.toLowerCase().startsWith('name,')) return;
+            const cols = line.split(',').map((c) => c.replace(/^"|"$/g, '').trim());
+            if (cols.length >= 2) {
+              const name = cols[0];
+              const barcode = cols[cols.length - 1];
+              if (name && barcode) {
+                productsDB.unshift({
+                  id: `imp-${Date.now()}-${index}`,
+                  name,
+                  brand: cols[1] || 'Imported',
+                  category: cols[2] || 'General Grocery',
+                  size: cols[3] || 'Standard',
+                  barcode,
+                  source: 'Imported'
+                });
+                importedCount++;
+              }
+            }
+          });
+        }
+
+        if (importedCount > 0) {
+          saveProductsToStorage();
+          renderDatabaseTable();
+          document.getElementById('bulk-import-textarea').value = '';
+          showToast(`Successfully imported ${importedCount} product(s)!`, 'success');
+          switchTab('database');
+        } else {
+          showToast('No valid product rows found in input.', 'error');
+        }
+      } catch (err) {
+        showToast('Invalid JSON or CSV format. Please check syntax.', 'error');
+      }
+    }
+
+    /**
+     * ============================================================================
+     * 9. SECURITY ESCAPING HELPERS & BOOTSTRAP
+     * ============================================================================
+     */
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function escapeAttr(str) {
+      return String(str).replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    }
+
+    // Initialize reliably on DOMContentLoaded / window load
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initApp);
+    } else {
+      initApp();
+    }
+  </script>
+</body>
+</html>
