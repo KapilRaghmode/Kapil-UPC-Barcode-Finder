@@ -3,193 +3,441 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Global Barcode & UPC Finder</title>
-  <!-- Free Tailwind CSS for clean styling -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Free JsBarcode Library for rendering scannable barcodes -->
-  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+  <title>Smart Barcode Finder</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --secondary: #10b981;
+      --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      --card-bg: rgba(255, 255, 255, 0.06);
+      --card-border: rgba(255, 255, 255, 0.12);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background: var(--bg-gradient);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Navigation Bar */
+    nav {
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--card-border);
+      padding: 1rem 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 1.4rem;
+      font-weight: 700;
+      background: linear-gradient(to right, #818cf8, #34d399);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: 0.5px;
+    }
+
+    .nav-links {
+      list-style: none;
+      display: flex;
+      gap: 1.8rem;
+    }
+
+    .nav-links a {
+      color: var(--text-main);
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: color 0.3s ease;
+    }
+
+    .nav-links a:hover {
+      color: #818cf8;
+    }
+
+    /* Main Container */
+    main {
+      flex: 1;
+      max-width: 900px;
+      width: 100%;
+      margin: 2.5rem auto;
+      padding: 0 1.5rem;
+    }
+
+    /* Sections & Glassmorphism Cards */
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      animation: fadeUp 0.6s ease-out forwards;
+    }
+
+    h1, h2 {
+      margin-bottom: 0.75rem;
+      font-weight: 600;
+    }
+
+    p.subtitle {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 1.5rem;
+    }
+
+    /* Search & Inputs */
+    .search-box {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    input {
+      flex: 1;
+      min-width: 220px;
+      padding: 0.85rem 1.2rem;
+      border-radius: 10px;
+      border: 1px solid var(--card-border);
+      background: rgba(15, 23, 42, 0.6);
+      color: #fff;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    input:focus {
+      border-color: #818cf8;
+      box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.25);
+    }
+
+    button {
+      padding: 0.85rem 1.6rem;
+      border-radius: 10px;
+      border: none;
+      background: var(--primary);
+      color: white;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: transform 0.2s ease, background 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    button:hover {
+      background: var(--primary-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .btn-secondary {
+      background: var(--secondary);
+    }
+
+    .btn-secondary:hover {
+      background: #059669;
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+    }
+
+    /* Sample Chips */
+    .samples {
+      margin-top: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+    }
+
+    .samples span {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .chip {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--card-border);
+      padding: 0.35rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      color: #cbd5e1;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .chip:hover {
+      background: rgba(129, 140, 248, 0.25);
+      border-color: #818cf8;
+      color: #fff;
+    }
+
+    /* Result Box */
+    #result {
+      margin-top: 1.5rem;
+      padding: 1.5rem;
+      border-radius: 12px;
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid var(--card-border);
+      display: none;
+      animation: fadeIn 0.4s ease forwards;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.7rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 0.6rem;
+    }
+
+    .badge-custom {
+      background: rgba(16, 185, 129, 0.2);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+    }
+
+    .badge-global {
+      background: rgba(99, 102, 241, 0.2);
+      color: #818cf8;
+      border: 1px solid rgba(99, 102, 241, 0.4);
+    }
+
+    .result-grid {
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 0.5rem;
+    }
+
+    .result-grid img {
+      width: 110px;
+      height: 110px;
+      object-fit: contain;
+      background: #fff;
+      border-radius: 10px;
+      padding: 0.5rem;
+    }
+
+    /* Custom Product List Table */
+    .db-list {
+      margin-top: 1.5rem;
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .db-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.9rem 1.2rem;
+      background: rgba(15, 23, 42, 0.5);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .db-item:hover {
+      transform: translateX(4px);
+      border-color: #818cf8;
+    }
+
+    .db-item-info strong {
+      display: block;
+      font-size: 0.95rem;
+    }
+
+    .db-item-info small {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+    }
+
+    /* Footer */
+    footer {
+      background: rgba(15, 23, 42, 0.9);
+      border-top: 1px solid var(--card-border);
+      padding: 2rem 1.5rem;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      margin-bottom: 0.8rem;
+    }
+
+    .footer-links a {
+      color: #cbd5e1;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    .footer-links a:hover {
+      color: #34d399;
+    }
+
+    /* Animations */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.98); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @media (max-width: 600px) {
+      nav { flex-direction: column; gap: 0.8rem; }
+      .nav-links { gap: 1rem; font-size: 0.85rem; }
+    }
+  </style>
 </head>
-<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col items-center p-6">
+<body>
 
-  <div class="max-w-2xl w-full bg-white rounded-2xl shadow-md p-6 md:p-8 mt-4">
-    <h1 class="text-2xl font-bold text-slate-900 mb-2">Global Barcode & UPC Finder</h1>
-    <p class="text-sm text-slate-500 mb-6">
-      Enter a <strong>Product Name</strong> (e.g., <em>Maggi Noodles</em>, <em>Coca Cola</em>) to search global databases, or type any <strong>Item Code / UPC / SKU</strong> to generate a barcode instantly.
-    </p>
+  <!-- Navigation Bar -->
+  <nav>
+    <div class="logo">BarcodeFinder Pro</div>
+    <ul class="nav-links">
+      <li><a href="#scanner">Search</a></li>
+      <li><a href="#custom-db">Custom Database</a></li>
+      <li><a href="#about">About</a></li>
+    </ul>
+  </nav>
 
-    <!-- Search / Input Box -->
-    <div class="flex flex-col sm:flex-row gap-3 mb-6">
-      <input 
-        type="text" 
-        id="searchInput" 
-        placeholder="Enter product name or item code..." 
-        class="flex-1 border border-slate-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        onkeypress="if(event.key === 'Enter') handleAction()"
-      />
-      <button 
-        onclick="handleAction()" 
-        class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-3 rounded-xl transition cursor-pointer">
-        Find / Generate
-      </button>
-    </div>
+  <!-- Main Content -->
+  <main>
+    <!-- Barcode Lookup Section -->
+    <section id="scanner" class="card">
+      <h1>Product Barcode Lookup</h1>
+      <p class="subtitle">Enter any barcode below. Searches your private custom database first, then checks the global product directory.</p>
 
-    <!-- Status Message -->
-    <div id="statusMsg" class="text-sm text-slate-500 mb-4 hidden"></div>
-
-    <!-- Barcode Display Card -->
-    <div id="barcodeCard" class="hidden border border-slate-200 rounded-xl p-6 bg-slate-50 flex flex-col items-center text-center mb-6">
-      <h2 id="displayTitle" class="font-semibold text-lg text-slate-800 mb-1"></h2>
-      <p id="displayFormat" class="text-xs text-slate-500 uppercase tracking-wider mb-4"></p>
-      
-      <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-100">
-        <svg id="barcodeSvg"></svg>
+      <div class="search-box">
+        <input type="text" id="barcodeInput" placeholder="Enter barcode (e.g., 1001 or 8901058851229)" />
+        <button onclick="searchBarcode()">Search Product</button>
       </div>
 
-      <button 
-        onclick="downloadBarcode()" 
-        class="mt-4 bg-slate-800 hover:bg-slate-900 text-white text-sm px-4 py-2 rounded-lg transition cursor-pointer">
-        Download PNG
-      </button>
-    </div>
+      <!-- Quick Test Examples -->
+      <div class="samples">
+        <span>Try examples:</span>
+        <div class="chip" onclick="quickSearch('1001')">1001 (Custom Item)</div>
+        <div class="chip" onclick="quickSearch('1002')">1002 (Fresh Cabbage)</div>
+        <div class="chip" onclick="quickSearch('8901058851229')">8901058851229 (Maggi)</div>
+        <div class="chip" onclick="quickSearch('5449000000996')">5449000000996 (Coca-Cola)</div>
+      </div>
 
-    <!-- Search Results List (for Product Name searches) -->
-    <div id="resultsList" class="space-y-3"></div>
-  </div>
+      <!-- Search Result Display -->
+      <div id="result"></div>
+    </section>
+
+    <!-- Custom Private Database Section -->
+    <section id="custom-db" class="card">
+      <h2>Private Product Database</h2>
+      <p class="subtitle">Add your own store or custom products here. They are saved directly in your browser and searched instantly.</p>
+
+      <div class="search-box">
+        <input type="text" id="newCode" placeholder="Barcode (e.g., 1003)" />
+        <input type="text" id="newName" placeholder="Product Name" />
+        <input type="text" id="newBrand" placeholder="Brand / Category" />
+        <input type="text" id="newPrice" placeholder="Price (e.g., ₹45)" />
+        <button class="btn-secondary" onclick="addCustomProduct()">+ Add Product</button>
+      </div>
+
+      <div class="db-list" id="customDbList"></div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="card">
+      <h2>How It Works</h2>
+      <p class="subtitle" style="margin-bottom: 0;">
+        This hybrid lookup engine prioritizes your local custom inventory so private items, fresh produce, or local store SKUs resolve instantaneously offline, while seamlessly falling back to the Open Food Facts global API for packaged retail goods.
+      </p>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-links">
+      <a href="#scanner">Barcode Search</a>
+      <a href="#custom-db">Manage Inventory</a>
+      <a href="#about">Documentation</a>
+    </div>
+    <p>© 2026 BarcodeFinder Pro. Built for fast inventory & retail lookup.</p>
+  </footer>
 
   <script>
-    function handleAction() {
-      const query = document.getElementById('searchInput').value.trim();
-      if (!query) return;
-
-      const resultsList = document.getElementById('resultsList');
-      resultsList.innerHTML = '';
-
-      // Check if input is purely numeric or a custom SKU (no spaces, mostly digits or SKU format)
-      const isCode = /^[0-9]{8,14}$/.test(query) || (/^[A-Za-z0-9-_]+$/.test(query) && query.length <= 20 && /\d/.test(query) && !query.includes(' '));
-
-      if (isCode) {
-        renderBarcode(query, 'Custom / Direct Item Code');
-      } else {
-        searchProductDatabase(query);
+    // ==========================================
+    // 1. CUSTOM PRIVATE PRODUCT DATABASE
+    // You can edit these defaults or add more via the UI!
+    // ==========================================
+    const defaultCustomProducts = {
+      "1001": {
+        name: "Organic Basmati Rice (1 kg)",
+        brand: "Local Farm Harvest",
+        price: "₹120",
+        notes: "Aisle 2 - Grains & Staples"
+      },
+      "1002": {
+        name: "Fresh Green Cabbage (Per Pc)",
+        brand: "Fresh Produce",
+        price: "₹35",
+        notes: "Produce Section - Daily Stock"
       }
+    };
+
+    // Load saved products from browser storage or fall back to defaults
+    let customDatabase = JSON.parse(localStorage.getItem("myCustomProducts")) || defaultCustomProducts;
+
+    function saveDatabase() {
+      localStorage.setItem("myCustomProducts", JSON.stringify(customDatabase));
+      renderCustomList();
     }
 
-    async function searchProductDatabase(productName) {
-      const statusMsg = document.getElementById('statusMsg');
-      const barcodeCard = document.getElementById('barcodeCard');
-      const resultsList = document.getElementById('resultsList');
+    // Render the list of custom items in the UI
+    function renderCustomList() {
+      const listContainer = document.getElementById("customDbList");
+      listContainer.innerHTML = "";
 
-      barcodeCard.classList.add('hidden');
-      statusMsg.classList.remove('hidden');
-      statusMsg.textContent = `Searching global databases for "${productName}"...`;
-
-      try {
-        // Query Open Food Facts (Free global database with strong Indian & international coverage)
-        const response = await fetch(`https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(productName)}&search_simple=1&action=process&json=1&page_size=8`, {
-          headers: { 'User-Agent': 'GlobalBarcodeFinderApp/1.0' }
-        });
-        const data = await response.json();
-
-        const validProducts = (data.products || []).filter(p => p.code && p.product_name);
-
-        if (validProducts.length === 0) {
-          statusMsg.textContent = `No exact match found in open databases for "${productName}". If you have the item number, enter it directly above to generate its barcode.`;
-          return;
-        }
-
-        statusMsg.textContent = `Found ${validProducts.length} matching products. Click one to generate its barcode:`;
-
-        validProducts.forEach(product => {
-          const item = document.createElement('div');
-          item.className = 'flex items-center justify-between p-4 border border-slate-200 rounded-xl hover:bg-blue-50 hover:border-blue-300 cursor-pointer transition';
-          item.onclick = () => renderBarcode(product.code, `${product.product_name} ${product.brands ? '(' + product.brands + ')' : ''}`);
-
-          item.innerHTML = `
-            <div class="flex items-center gap-3">
-              ${product.image_front_small_url ? `<img src="${product.image_front_small_url}" class="w-12 h-12 object-contain rounded bg-white border p-1" />` : '<div class="w-12 h-12 bg-slate-200 rounded flex items-center justify-center text-xs text-slate-500">No Img</div>'}
-              <div>
-                <div class="font-medium text-slate-900">${product.product_name}</div>
-                <div class="text-xs text-slate-500">${product.brands || 'Brand unlisted'} • Code: <span class="font-mono font-semibold text-slate-700">${product.code}</span></div>
-              </div>
-            </div>
-            <span class="text-xs font-semibold text-blue-600 bg-blue-100 px-3 py-1 rounded-full">Generate →</span>
-          `;
-          resultsList.appendChild(item);
-        });
-
-      } catch (error) {
-        statusMsg.textContent = 'Error connecting to the product database. Please try again.';
+      const codes = Object.keys(customDatabase);
+      if (codes.length === 0) {
+        listContainer.innerHTML = `<p style="color: var(--text-muted); font-size: 0.9rem;">No custom products added yet.</p>`;
+        return;
       }
-    }
 
-    function renderBarcode(code, title) {
-      const barcodeCard = document.getElementById('barcodeCard');
-      const displayTitle = document.getElementById('displayTitle');
-      const displayFormat = document.getElementById('displayFormat');
-      const statusMsg = document.getElementById('statusMsg');
-
-      // Auto-detect barcode standard
-      let format = 'CODE128';
-      if (/^\d{12}$/.test(code)) format = 'UPC';
-      else if (/^\d{13}$/.test(code)) format = 'EAN13';
-      else if (/^\d{8}$/.test(code)) format = 'EAN8';
-
-      try {
-        JsBarcode('#barcodeSvg', code, {
-          format: format,
-          lineColor: '#000000',
-          width: 2,
-          height: 90,
-          displayValue: true,
-          margin: 15
-        });
-
-        displayTitle.textContent = title;
-        displayFormat.textContent = `Format: ${format} • Code: ${code}`;
-        barcodeCard.classList.remove('hidden');
-        statusMsg.classList.add('hidden');
-        barcodeCard.scrollIntoView({ behavior: 'smooth' });
-      } catch (e) {
-        // Fallback to universal CODE128 if check-digit fails on a custom 12/13 digit number
-        JsBarcode('#barcodeSvg', code, {
-          format: 'CODE128',
-          lineColor: '#000000',
-          width: 2,
-          height: 90,
-          displayValue: true,
-          margin: 15
-        });
-        displayTitle.textContent = title;
-        displayFormat.textContent = `Format: CODE128 (Custom/Unverified Check Digit) • Code: ${code}`;
-        barcodeCard.classList.remove('hidden');
-        statusMsg.classList.add('hidden');
-      }
-    }
-
-    function downloadBarcode() {
-      const svg = document.getElementById('barcodeSvg');
-      const serializer = new XMLSerializer();
-      const svgData = serializer.serializeToString(svg);
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      const img = new Image();
-
-      img.onload = function() {
-        canvas.width = img.width;
-        canvas.height = img.height;
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(img, 0, 0);
-
-        const pngUrl = canvas.toDataURL('image/png');
-        const downloadLink = document.createElement('a');
-        downloadLink.href = pngUrl;
-        downloadLink.download = 'barcode.png';
-        downloadLink.click();
-      };
-
-      img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
-    }
-  </script>
-</body>
-</html>
+      codes.forEach(code => {
+        const item = customDatabase[code];
+        const div = document.createElement("div");
+        div.className = "db-item";
+        div.innerHTML = `
+          <div class="db-item-info">
+            <strong>${item.name} (${item.price || "N/
