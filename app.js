@@ -154,16 +154,7 @@ const DEFAULT_PRODUCTS = [
     imageUrl: '',
     source: 'Built-in DB'
   }
-  {
-    id: 'prod-16',
-    name: 'Slurrp Farm Choco Crunch Cereal (4 x 28 g)',
-    brand: 'Slurrp Farm (Wholsum Foods Pvt. Ltd.)',
-    category: 'Biscuits & Snacks',
-    size: '4 x 28 g (112 g total net weight)',
-    barcode: '8906131686194',
-    imageUrl: '',
-    source: 'Built-in DB'
-  },
+
 ];
 
 const STORAGE_KEY_PRODUCTS = 'barcode_finder_products_v3';
